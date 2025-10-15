@@ -40,3 +40,6 @@ lerna-debug.log*
 .env.development.local
 .env.test.local
 .env.production.local
+
+# npm cache (should not be committed)
+.npm-cache/
