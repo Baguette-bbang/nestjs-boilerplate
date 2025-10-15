@@ -5,11 +5,13 @@
 ## 주요 기능
 
 ### 1. 표준화된 API 응답 구조
+
 - ✅ 통일된 성공/에러 응답 형식
 - ✅ Response Interceptor를 통한 자동 응답 래핑
 - ✅ 상세한 에러 코드 시스템
 
 ### 2. 고급 로깅 시스템
+
 - ✅ Winston 기반 구조화된 로깅
 - ✅ 일일 로그 로테이션 및 자동 압축
 - ✅ 개발/프로덕션 환경별 로그 포맷
@@ -17,12 +19,14 @@
 - ✅ 민감정보 자동 마스킹 (프로덕션)
 
 ### 3. Global Exception Filter
+
 - ✅ 모든 예외의 일관된 처리
 - ✅ ApiException 커스텀 예외 시스템
 - ✅ ValidationPipe 에러 통합 처리
 - ✅ 상세한 에러 로깅
 
 ### 4. Swagger API 문서화
+
 - ✅ 자동 API 문서 생성
 - ✅ 성공/에러 응답 데코레이터
 - ✅ DTO 기반 스키마 생성
@@ -31,6 +35,7 @@
 ## API 테스트
 
 서버 실행 후 다음 엔드포인트에서 테스트 가능합니다:
+
 - http://localhost:3000/api - Hello World
 - http://localhost:3000/api/health - 헬스체크
 - http://localhost:3000/api-docs - Swagger 문서
@@ -52,19 +57,65 @@ npm run build
 npm run start:prod
 ```
 
+## 응답 표준
+
+본 프로젝트는 모든 HTTP 응답을 일관된 포맷으로 제공합니다.
+
+### 성공 응답
+
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "data": {
+    "example": true
+  },
+  "timestamp": "2025-01-01T00:00:00.000Z",
+  "path": "/api/example",
+  "method": "GET"
+}
+```
+
+### 에러 응답
+
+```json
+{
+  "success": false,
+  "statusCode": 400,
+  "error": {
+    "code": "COMMON_VALIDATION_FAILED",
+    "message": "유효하지 않은 요청입니다",
+    "details": {
+      "field": "reason"
+    }
+  },
+  "timestamp": "2025-01-01T00:00:00.000Z",
+  "path": "/api/example",
+  "method": "POST"
+}
+```
+
+### 적용 방식
+
+- 글로벌 인터셉터: `ResponseInterceptor`가 컨트롤러 반환값을 성공 응답 포맷으로 래핑합니다.
+- 글로벌 예외 필터: `HttpExceptionFilter`가 모든 예외를 에러 응답 포맷으로 변환합니다.
+- 검증 오류: `ValidationPipe`의 `exceptionFactory`가 `ApiException`을 발생시켜 동일 포맷을 유지합니다.
+
 ## 사용 예제
 
 ### 커스텀 Exception
+
 ```typescript
 import { ApiException } from './common/exceptions/api-exception';
 
 throw new ApiException('USER_NOT_FOUND', {
   message: '해당 ID의 사용자를 찾을 수 없습니다',
-  details: { userId: '123' }
+  details: { userId: '123' },
 });
 ```
 
 ### Swagger 데코레이터
+
 ```typescript
 import { ApiSuccessResponse, ApiErrorResponse } from './global/decorators';
 
